@@ -1,0 +1,35 @@
+config:
+  target: http://localhost:3000
+  phases:
+    - duration: 10s
+      arrivalRate: 1
+      rampTo: 5
+      name: Warm up phase
+    - duration: 60s
+      arrivalRate: 1
+      rampTo: 15
+      name: Testing
+  plugins:
+    ensure: {}
+    apdex: {}
+    metrics-by-endpoint: {}
+  apdex:
+    threshold: 100
+  ensure:
+      thresholds:
+        - http.response_time.p99: 250
+        - http.response_time.p95: 250
+scenarios:
+  - flow:
+      - loop:
+        - get:
+            url: "/worker-thread-napi?q=2"
+        - get:
+            url: "/worker-thread-napi?q=4"
+        - get:
+            url: "/worker-thread-napi?q=8"
+        - get:
+            url: "/worker-thread-napi?q=16"
+        - get:
+            url: "/worker-thread-napi?q=32"
+        count: 100
